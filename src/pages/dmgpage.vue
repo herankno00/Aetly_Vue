@@ -92,6 +92,7 @@
 <script >
 import * as api from "../api/api";
 import { decrypt } from "../utils/decode";
+import { ErrorHandler, NetworkStatus } from "../utils/errorHandler";
 
 export default {
   // @click="tocvclick"
@@ -102,7 +103,7 @@ export default {
       page: 1,
       count: 0,
       tkvalue: "_  _",
-      nc: "",
+      nc: "游客",
       path: "",
       currentDate: new Date().toLocaleString(),
       screenWidth: document.documentElement.clientWidth, //屏幕宽度

@@ -1,30 +1,41 @@
 <template>
-  <div>
-    <img
-      class="tabii"
-      src="../assets/img/a1.png"
-      style="width: 100%"
-      id="tab1"
-    />
-    <img
-      class="tabii"
-      src="../assets/img/a2.png"
-      style="opacity: 0; width: 100%"
-      id="tab2"
-    />
-    <img />
-    <div
-      id="box"
-      class="tabii"
-      style="background-color: transparent; width: 100%"
-    ></div>
-    <h1
-      id="h1"
-      align="center"
-      style="position: absolute; width: 100%; opacity: 1; bottom: 10%; top: 80%"
-    >
-      记录
-    </h1>
+  <div class="mobile-nav-container">
+    <!-- 背景装饰 -->
+    <div class="background-overlay">
+      <div class="bg-shape shape-1"></div>
+      <div class="bg-shape shape-2"></div>
+      <div class="bg-shape shape-3"></div>
+    </div>
+    
+    <!-- 主要内容 -->
+    <div class="nav-content">
+      <div class="header-section">
+        <h1 class="app-title">Aetly</h1>
+        <p class="app-subtitle">个人网站</p>
+      </div>
+      
+      <div class="categories-section">
+        <h2 class="section-title">选择分类</h2>
+        <div class="categories-grid">
+          <div 
+            v-for="category in categories" 
+            :key="category.key"
+            class="category-card"
+            :class="{ 'active': currentCategory === category.key }"
+            @click="selectCategory(category)"
+          >
+            <div class="category-icon">{{ category.icon }}</div>
+            <h3 class="category-name">{{ category.name }}</h3>
+            <p class="category-desc">{{ category.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部信息 -->
+    <div class="footer-info">
+      <p class="copyright">© 2024 Aetly - 个人网站</p>
+    </div>
   </div>
 </template>
 
@@ -32,132 +43,297 @@
 export default {
   name: "Tkvalue",
   data() {
-    return {};
-  },
-  created() {},
-  mounted() {
-    let _this = this;
-
-    var telest = ["c#", "记录", "游戏", "动漫", "音乐"];
-    var w = document.documentElement.clientWidth; //获取页面可见高度
-    document.getElementById("h1").style.width = w;
-    var h = document.documentElement.clientHeight;
-    document.getElementById("tab1").style.background =
-      "background-size:" + w + "px " + h + "px";
-    document.getElementById("tab2").style.background =
-      "background-size:" + w + "px " + h + "px";
-    //定义变量，用于记录坐标和角度
-    var startx, movex, endx, nx;
-    var tab2 = 2;
-    //
-    var imagesnums = 0;
-    var left = 0;
-    //开始触摸函数，event为触摸对象
-    function touchs(event) {
-      event.preventDefault(); //阻止浏览器默认滚动事件
-      var box = document.getElementById("box"); //获取DOM标签
-      var touch;
-      if (event.type == "touchstart") {
-        //通过if语句判断event.type执行了哪个触摸事件
-        console.log("开始");
-        touch = event.touches[0]; //获取开始的位置数组的第一个触摸位置
-        startx = Math.floor(touch.pageX); //获取第一个坐标的X轴
-      } else if (event.type == "touchmove") {
-        //触摸中的坐标获取
-        // console.log('滑动中');
-        touch = event.touches[0];
-        movex = Math.floor(touch.pageX);
-
-        var a = movex - startx;
-        document.getElementById("tab1").style.left = a + "px";
-        document.getElementById("tab1").style.opacity = 1 - Math.abs(a) / w;
-        document.getElementById("tab2").style.opacity = Math.abs(a) / w;
-        //  console.log(a + "px");
-      } else if (event.type == "touchend" || event.type == "touchcancel") {
-        //当手指离开屏幕或系统取消触摸事件的时候
-        endx = Math.floor(event.changedTouches[0].pageX); //获取最后的坐标位置
-        console.log("结束");
-        nx = endx - startx; //获取开始位置和离开位置的距离
-        if (Math.abs(nx) < 1) {
-          switch (document.getElementById("h1").innerText) {
-            case "记录":
-              _this.setCookie("type", "记录");
-              _this.$router.push({ name: "allpage" });
-
-              break;
-            case "c#":
-              _this.setCookie("type", "c#");
-
-              _this.$router.push({ name: "allpage" });
-
-              break;
-            case "游戏":
-             _this.setCookie("type", "游戏");
-              _this.$router.push({ name: "dmgpage" });
-
-              break;
-            case "音乐":
-           _this.setCookie("type", "音乐");
-              _this.$router.push({ name: "dmgpage" });
-
-
-              break;
-            case "动漫":
-             _this.setCookie("type", "动漫");
-              _this.$router.push({ name: "dmgpage" });
-
-              break;
-            default:
-              break;
-          }
+    return {
+      currentCategory: '',
+      categories: [
+        {
+          key: '记录',
+          name: '记录',
+          icon: '📝',
+          description: '日常记录与思考',
+          route: 'allpage'
+        },
+        {
+          key: 'c#',
+          name: 'C#',
+          icon: '💻',
+          description: '编程技术相关',
+          route: 'allpage'
+        },
+        {
+          key: '游戏',
+          name: '游戏',
+          icon: '🎮',
+          description: '游戏相关内容',
+          route: 'dmgpage'
+        },
+        {
+          key: '动漫',
+          name: '动漫',
+          icon: '🎬',
+          description: '动漫作品分享',
+          route: 'dmgpage'
+        },
+        {
+          key: '音乐',
+          name: '音乐',
+          icon: '🎵',
+          description: '音乐作品收藏',
+          route: 'dmgpage'
         }
-
-        if (Math.abs(nx) > w / 2) {
-          //../assets/img/a2.png
-          document.getElementById("tab1").src = require("../assets/img/a" +
-            tab2 +
-            ".png");
-          if (tab2 == 5) {
-            tab2 = 1;
-            document.getElementById("tab2").src = require("../assets/img/a" +
-              tab2 +
-              ".png");
-          } else {
-            tab2++;
-            document.getElementById("tab2").src = require("../assets/img/a" +
-              tab2 +
-              ".png");
-          }
-          console.log(tab2);
-          document.getElementById("h1").innerText = telest[tab2 - 1];
-        }
-        document.getElementById("tab2").style.opacity = 0;
-        document.getElementById("tab1").style.left = "0px";
-        document.getElementById("tab1").style.opacity = 1;
-      }
-    }
-    //添加触摸事件的监听，并直行自定义触摸函数
-    document
-      .getElementById("box")
-      .addEventListener("touchstart", touchs, false);
-    document.getElementById("box").addEventListener("touchmove", touchs, false);
-    document.getElementById("box").addEventListener("touchend", touchs, false);
+      ]
+    };
   },
   methods: {
+    selectCategory(category) {
+      this.currentCategory = category.key;
+      this.setCookie("type", category.key);
+      
+      // 添加点击反馈
+      setTimeout(() => {
+        this.$router.push({ name: category.route });
+      }, 200);
+    },
+    
     setCookie(name, value) {
       var Days = 30;
       var exp = new Date();
       exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);
       document.cookie =
         name + "=" + escape(value) + ";expires=" + exp.toGMTString();
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style lang="less" scoped>
-.tabii {
+.mobile-nav-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.background-overlay {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
+  z-index: 0;
+}
+
+.bg-shape {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  
+  &.shape-1 {
+    width: 200px;
+    height: 200px;
+    top: -50px;
+    right: -50px;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  &.shape-2 {
+    width: 150px;
+    height: 150px;
+    bottom: 100px;
+    left: -30px;
+    animation: float 4s ease-in-out infinite reverse;
+  }
+  
+  &.shape-3 {
+    width: 100px;
+    height: 100px;
+    top: 30%;
+    right: 20px;
+    animation: float 5s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.nav-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  z-index: 1;
+  position: relative;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.app-title {
+  font-size: 3.5rem;
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.app-subtitle {
+  font-size: 1.3rem;
+  margin: 15px 0 0;
+  opacity: 0.8;
+  font-weight: 300;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.category-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 25px 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  &.active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.category-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.category-desc {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.footer-info {
+  text-align: center;
+  padding: 20px;
+  z-index: 1;
+  position: relative;
+}
+
+.copyright {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+// 小屏幕适配
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 2.8rem;
+  }
+  
+  .categories-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 300px;
+  }
+  
+  .category-card {
+    padding: 20px 15px;
+  }
+  
+  .category-icon {
+    font-size: 2rem;
+  }
+  
+  .nav-content {
+    padding: 30px 15px;
+  }
+}
+
+// 超小屏幕
+@media (max-width: 360px) {
+  .app-title {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+  }
+  
+  .category-card {
+    padding: 18px 12px;
+  }
+}
+
+// 横屏适配
+@media (orientation: landscape) and (max-height: 500px) {
+  .nav-content {
+    padding: 20px;
+  }
+  
+  .header-section {
+    margin-bottom: 30px;
+  }
+  
+  .app-title {
+    font-size: 2.5rem;
+  }
+  
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+  
+  .category-card {
+    padding: 15px 10px;
+  }
+  
+  .category-icon {
+    font-size: 1.8rem;
+  }
 }
 </style>

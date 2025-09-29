@@ -96,6 +96,7 @@
 <script >
 import * as api from "../api/api";
 import { decrypt } from "../utils/decode";
+import { ErrorHandler, NetworkStatus } from "../utils/errorHandler";
 
 export default {
   // @click="tocvclick"
@@ -106,18 +107,11 @@ export default {
       page: 1,
       count: 0,
       tkvalue: "_  _",
-      nc: "",
+      nc: "游客",
       currentDate: new Date().toLocaleString(),
       screenWidth: document.documentElement.clientWidth, //屏幕宽度
       screenHeight: document.documentElement.clientHeight, //屏幕高度
-      nrlist: [
-        //  {
-        //     h1:"123",
-        //     p1:"",
-        //     p2:"",
-        //     isrc:"",
-        //   },
-      ],
+      nrlist: [],
       dialogVisible: false,
       dialogh1: "",
       dialogp1: "",
@@ -139,46 +133,9 @@ export default {
   computed: {},
   created() {},
   mounted() {
-    api.gettqvalue((params = returnCitySN)).then((res) => {
-      this.$refs.tq.innerHTML = "天气："+res.data;
-    });
-
-    //拿QQ昵称
-    api.getToken().then((res) => {
-      console.log(res.data);
-      this.nc = res.data.name;
-      this.tkvalue = res.data.tk;
-    });
-    var ls = this.getCookie("type");
-    console.log(ls);
-    var params = { index: this.page, type: ls };
-    api.gettkvalue(params).then((res) => {
-      console.log(res.data[0].id);
-      res.data.forEach((element) => {
-        this.sjgsh(
-          element.title,
-          element.content_txt,
-          element.time,
-          element.image_path
-        );
-      });
-    });
-
-    // 时间
-    setInterval(() => {
-      this.currentDate = new Date().toLocaleString();
-    }, 1000);
-
-    setInterval(() => {
-      this.tk = null;
-    }, 1000);
-    var _this = this;
-    window.onresize = function () {
-      // 定义窗口大小变更通知事件
-      _this.screenWidth = document.documentElement.clientWidth; //窗口宽度
-      _this.screenHeight = document.documentElement.clientHeight; //窗口高度
-    };
-
+    this.initializeData();
+    this.setupTimers();
+    this.setupWindowResize();
     window.addEventListener("scroll", this.handleScroll, true); // 监听（绑定）滚轮滚动事件
   },
   methods: {
@@ -188,6 +145,128 @@ export default {
 
       if ((arr = document.cookie.match(reg))) return unescape(arr[2]);
       else return null;
+    },
+    
+    // 初始化数据
+    async initializeData() {
+      try {
+        // 检测网络状态
+        if (!NetworkStatus.isOnline()) {
+          this.loadOfflineData();
+          return;
+        }
+
+        // 获取天气信息
+        this.loadWeatherData();
+        
+        // 获取用户信息
+        await this.loadUserData();
+        
+        // 获取内容数据
+        await this.loadContentData();
+        
+      } catch (error) {
+        console.error('初始化数据失败:', error);
+        this.loadOfflineData();
+      }
+    },
+    
+    // 加载天气数据
+    loadWeatherData() {
+      if (typeof returnCitySN !== 'undefined') {
+        api.gettqvalue(returnCitySN).then((res) => {
+          if (this.$refs.tq) {
+            this.$refs.tq.innerHTML = "天气：" + res.data;
+          }
+        }).catch((error) => {
+          console.log('天气数据加载失败:', error);
+          if (this.$refs.tq) {
+            this.$refs.tq.innerHTML = "天气：暂无数据";
+          }
+        });
+      }
+    },
+    
+    // 加载用户数据
+    async loadUserData() {
+      try {
+        const res = await api.getToken();
+        console.log(res.data);
+        this.nc = res.data.name || '游客';
+        this.tkvalue = res.data.tk || 'OFFLINE';
+      } catch (error) {
+        console.log('用户数据加载失败:', error);
+        this.nc = '游客';
+        this.tkvalue = 'OFFLINE';
+      }
+    },
+    
+    // 加载内容数据
+    async loadContentData() {
+      try {
+        var ls = this.getCookie("type");
+        console.log('内容类型:', ls);
+        var params = { index: this.page, type: ls };
+        
+        const res = await api.gettkvalue(params);
+        console.log('内容数据:', res.data);
+        
+        if (res.data && res.data.length > 0) {
+          res.data.forEach((element) => {
+            this.sjgsh(
+              element.title,
+              element.content_txt,
+              element.time,
+              element.image_path
+            );
+          });
+        } else {
+          this.loadOfflineData();
+        }
+      } catch (error) {
+        console.log('内容数据加载失败:', error);
+        this.loadOfflineData();
+      }
+    },
+    
+    // 加载离线数据
+    loadOfflineData() {
+      const offlineData = ErrorHandler.createOfflineData();
+      this.nc = offlineData.name;
+      this.tkvalue = offlineData.token;
+      
+      offlineData.items.forEach((item) => {
+        this.sjgsh(
+          item.title,
+          item.content_txt,
+          item.time,
+          item.image_path
+        );
+      });
+      
+      this.open1('当前处于离线模式');
+    },
+    
+    // 设置定时器
+    setupTimers() {
+      // 时间更新
+      setInterval(() => {
+        this.currentDate = new Date().toLocaleString();
+      }, 1000);
+
+      // 重置token状态
+      setInterval(() => {
+        this.tk = null;
+      }, 1000);
+    },
+    
+    // 设置窗口大小监听
+    setupWindowResize() {
+      var _this = this;
+      window.onresize = function () {
+        _this.screenWidth = document.documentElement.clientWidth;
+        _this.screenHeight = document.documentElement.clientHeight;
+      };
     },
     handleScroll: function () {
       var clients =
