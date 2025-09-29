@@ -13,9 +13,15 @@
 </template>
 
 <script>
+import Navigation from './components/Navigation.vue';
+import ContentGrid from './components/ContentGrid.vue';
 
 export default {
-  name: 'app'
+  name: 'app',
+  components: {
+    Navigation,
+    ContentGrid
+  }
 }
 </script>
 

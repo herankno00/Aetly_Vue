@@ -1,40 +1,66 @@
-import { baseURL, request,requests } from './network';
+import { baseURL, request, requests } from './network';
+import { ErrorHandler } from '../utils/errorHandler';
 
 // 封装接口请求
 // export function 接口名() {
 // return 封装的请求名('请求方式', `${公用地址}请求地址`, 开启异步请求, 传参)
 // }
 
+// 带错误处理的请求包装器
+function withErrorHandling(requestPromise, context = '未知请求') {
+  return requestPromise.catch(error => {
+    const errorMessage = ErrorHandler.handleApiError(error);
+    ErrorHandler.showError(errorMessage, context);
+    throw error;
+  });
+}
 
 // **********************************************首页**********************************************
 // 获取昵称
 export function getToken(params) {
-
-    return request('get', `http://159.75.72.104:5000/api/Stks`, true, params)
+  return withErrorHandling(
+    request('get', `http://159.75.72.104:5000/api/Stks`, true, params),
+    '获取用户信息'
+  );
 }
-// 获取bilibli昵称
+
+// 获取bilibili昵称
 export function getTokenbilibili(params) {
-
-    return request('get', `https://localhost:7231/api/Dmg?str=bilibili`, true, params)
+  return withErrorHandling(
+    request('get', `https://localhost:7231/api/Dmg?str=bilibili`, true, params),
+    '获取Bilibili信息'
+  );
 }
+
 // 获取数据
 export function gettkvalue(params) {
-
-    return request('post', `https://localhost:7231/api/qh`, true, params)
+  return withErrorHandling(
+    request('post', `https://localhost:7231/api/qh`, true, params),
+    '获取内容数据'
+  );
 }
+
 export function getmkvalue(params) {
-
-    return request('post', `https://localhost:7231/api/Dmg`, true, params)
+  return withErrorHandling(
+    request('post', `https://localhost:7231/api/Dmg`, true, params),
+    '获取动漫数据'
+  );
 }
+
 //天气
 export function gettqvalue(params) {
-
-    return requests('post', `http://159.75.72.104:8888/LGI`, true, params)
+  return withErrorHandling(
+    requests('post', `http://159.75.72.104:8888/LGI`, true, params),
+    '获取天气信息'
+  );
 }
+
 //ip
 export function getipvalue(params) {
-
-    return requests('post', `http://pv.sohu.com/cityjson?ie=utf-8`, true, params)
+  return withErrorHandling(
+    requests('post', `http://pv.sohu.com/cityjson?ie=utf-8`, true, params),
+    '获取IP信息'
+  );
 }
 export function dateFormat(fmt, date) {
     let ret
