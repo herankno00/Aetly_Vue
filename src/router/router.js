@@ -41,6 +41,21 @@ const constantRouterMap = [
       name: 'dmgpage',
       component: resolve => require(['../pages/dmgpage'], resolve)
     },
+    // Error page
+    {
+      path: '/error',
+      name: 'error',
+      component: resolve => require(['../pages/Error'], resolve),
+      props: route => ({ 
+        errorType: route.query.type || 'general',
+        errorDetails: route.query.details || ''
+      })
+    },
+    // 404 catch-all
+    {
+      path: '*',
+      redirect: { name: 'error', query: { type: '404' } }
+    }
 ]
 
 
