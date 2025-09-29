@@ -30,7 +30,6 @@ const constantRouterMap = [
       name: 'TkvalueCp',
       component: resolve => require(['../pages/TkvalueCp'], resolve)
     },
-    ,
     //all
     {
       path: '/allpage',
